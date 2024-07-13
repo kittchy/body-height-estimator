@@ -105,6 +105,8 @@ if __name__ == "__main__":
     )
     module.setup("fit")
     for batch in module.train_dataloader():
+        print(len(batch))
+        print(len(batch[0]))
         print(f"original:{batch[0].shape}")
         print(f"target:{batch[1].shape}")
         print(f"mask:{batch[2].shape}")

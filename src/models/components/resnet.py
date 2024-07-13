@@ -177,7 +177,14 @@ class ResNet(nn.Module):
         FLOPs 7.6x10^9
     """
 
-    def __init__(self, block, layers, num_classes=1, use_senet=False, ratio=16):
+    def __init__(
+        self,
+        use_bottleneck_block: bool,
+        layers,
+        num_classes=1,
+        use_senet=False,
+        ratio=16,
+    ):
         super(ResNet, self).__init__()
         self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
 
@@ -197,7 +204,7 @@ class ResNet(nn.Module):
         self.bn = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxPool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-
+        block = BottleneckBlock if use_bottleneck_block else BasicBlock
         self.conv2 = self.get_layers(block, 64, self.layers[0])
         self.conv3 = self.get_layers(block, 128, self.layers[1], stride=2)
         self.conv4 = self.get_layers(block, 256, self.layers[2], stride=2)
@@ -244,7 +251,6 @@ class ResNet(nn.Module):
         """
         Example tensor shape based on resnet101
         """
-
         x = self.conv1(x)
         x = self.bn(x)
         x = self.relu(x)
@@ -262,21 +268,21 @@ class ResNet(nn.Module):
 
 
 def resnet18(**kwargs):
-    return ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
+    return ResNet(False, [2, 2, 2, 2], **kwargs)
 
 
 def resnet34(**kwargs):
-    return ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
+    return ResNet(False, [3, 4, 6, 3], **kwargs)
 
 
 def resnet50(**kwargs):
-    return ResNet(BottleneckBlock, [3, 4, 6, 3], **kwargs)
+    return ResNet(True, [3, 4, 6, 3], **kwargs)
 
 
 def resnet101(**kwargs):
     """ResNet-101 Model"""
-    return ResNet(BottleneckBlock, [3, 4, 23, 3], **kwargs)
+    return ResNet(True, [3, 4, 23, 3], **kwargs)
 
 
 def resnet152(**kwargs):
-    return ResNet(BottleneckBlock, [3, 8, 36, 3], **kwargs)
+    return ResNet(True, [3, 8, 36, 3], **kwargs)

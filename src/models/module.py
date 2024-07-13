@@ -55,7 +55,8 @@ class BodyHeightModule(LightningModule):
         :param x: A tensor of images.
         :return: A tensor of logits.
         """
-        return self.net(original_iamge, pose, depth, mask)
+        x = torch.cat((original, pose, depth, mask), 1)
+        return self.net(x)
 
     def on_train_start(self) -> None:
         """Lightning hook that is called when training begins."""

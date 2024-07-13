@@ -15,9 +15,7 @@ scheduler:
 
 net:
   _target_: src.models.components.resnet.ResNet
-  block:
-    _target_: src.models.components.resnet.BasicBlock
-    # _target_: src.models.components.resnet.BottlenetckBlock
+  use_bottleneck_block: true
   layers: [2, 2, 2, 2]
   num_classes: 1
   use_senet: true
