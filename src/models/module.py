@@ -6,7 +6,7 @@ from torchmetrics import MaxMetric, MeanMetric, MinMetric
 from torchmetrics import MeanAbsoluteError
 
 
-class HeightEstimateModule(LightningModule):
+class BodyHeightModule(LightningModule):
     def __init__(
         self,
         net: torch.nn.Module,
@@ -203,4 +203,4 @@ class HeightEstimateModule(LightningModule):
 
 
 if __name__ == "__main__":
-    _ = HeightEstimateModule(None, None, None, None)
+    _ = BodyHeightModule(None, None, None, None)

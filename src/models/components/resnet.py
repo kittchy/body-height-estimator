@@ -32,6 +32,7 @@ class BasicBlock(nn.Module):
         downsample=None,
     ):
         super(BasicBlock, self).__init__()
+        out_channels = hid_channels * self.expansion
         self.conv1 = conv3x3(in_channels, hid_channels, stride)
         self.bn1 = nn.BatchNorm2d(hid_channels)
         self.relu = nn.ReLU(inplace=True)
@@ -58,7 +59,7 @@ class BasicBlock(nn.Module):
             residual = self.downsample(x)
 
         # SENet
-        if not self.senet is None:
+        if self.senet is not None:
             out = self.senet(out)
 
         out += residual
@@ -114,7 +115,7 @@ class BottleneckBlock(nn.Module):  # bottelneck-block, over the 50 layers.
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if not self.senet is None:
+        if self.senet is not None:
             out = self.senet(out)
 
         out += residual
@@ -176,7 +177,7 @@ class ResNet(nn.Module):
         FLOPs 7.6x10^9
     """
 
-    def __init__(self, block, layers, num_classes=1000, use_senet=False, ratio=16):
+    def __init__(self, block, layers, num_classes=1, use_senet=False, ratio=16):
         super(ResNet, self).__init__()
         self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
 
@@ -186,7 +187,7 @@ class ResNet(nn.Module):
         self.ratio = ratio
 
         self.conv1 = nn.Conv2d(
-            in_channels=3 + 3,  # depth, pose, mask, original image
+            in_channels=4,  # depth, pose, mask, original image
             out_channels=64,
             kernel_size=7,
             stride=2,
