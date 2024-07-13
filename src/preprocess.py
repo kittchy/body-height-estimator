@@ -127,4 +127,3 @@ if __name__ == "__main__":
     parser = Args.get_parser_grouped_by_parents()
     args = parser.parse_args()
     preprocess(args)
-    pose.close()

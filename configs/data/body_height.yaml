@@ -3,5 +3,5 @@ train_manifest_file: ${paths.data_dir}/Manifest/train.jsonp
 valid_manifest_file: ${paths.data_dir}/Manifest/valid.jsonp
 test_manifest_file: ${paths.data_dir}/Manifest/test.jsonp
 batch_size: 32
-num_workers: 4
-pin_memory: True
+num_workers: 0
+pin_memory: False

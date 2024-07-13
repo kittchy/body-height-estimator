@@ -9,6 +9,9 @@ class PoseGenerate:
         self.mp_pose = mp.solutions.pose
         self.pose = self.mp_pose.Pose()
 
+    def __del__(self):
+        self.pose.close()
+
     def generate(self, image_path: str, dist_path: str):
         image = cv2.imread(image_path)
         # OpenCVとMediaPipeでRGBの並びが違うため、処理前に変換しておく。
