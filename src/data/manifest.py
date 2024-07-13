@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+import json
 
 
 class Manifest(BaseModel):
@@ -9,5 +10,10 @@ class Manifest(BaseModel):
     height: float
 
     @staticmethod
-    def load_jsonp():
-        pass
+    def load_jsonp(filepath: str) -> list["Manifest"]:
+        manifests = []
+        with open(filepath) as f:
+            for line in f.readlines():
+                data = json.loads(line)
+                manifests.append(Manifest(**data))
+        return manifests

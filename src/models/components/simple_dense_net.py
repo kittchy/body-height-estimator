@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 
+import torch.hub
+
 
 class SimpleDenseNet(nn.Module):
     """A simple fully-connected neural net for computing predictions."""
@@ -11,7 +13,7 @@ class SimpleDenseNet(nn.Module):
         lin1_size: int = 256,
         lin2_size: int = 256,
         lin3_size: int = 256,
-        output_size: int = 10,
+        output_size: int = 1,
     ) -> None:
         """Initialize a `SimpleDenseNet` module.
 
@@ -22,7 +24,9 @@ class SimpleDenseNet(nn.Module):
         :param output_size: The number of output features of the final linear layer.
         """
         super().__init__()
-
+        self.se_net = torch.hub.load(
+            "moskomule/senet.pytorch", "se_resnet20", num_classes=10
+        )
         self.model = nn.Sequential(
             nn.Linear(input_size, lin1_size),
             nn.BatchNorm1d(lin1_size),

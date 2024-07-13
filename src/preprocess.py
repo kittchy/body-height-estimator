@@ -6,9 +6,9 @@ import shutil
 import random
 from tqdm import tqdm
 from data.manifest import Manifest
-from preprocess.pose_generate import PoseGenerate
-from preprocess.mask_generate import MaskGenerate
-from preprocess.depth_generate import DepthGenerate
+from preprocess_utils.pose_generate import PoseGenerate
+from preprocess_utils.mask_generate import MaskGenerate
+from preprocess_utils.depth_generate import DepthGenerate
 
 random.seed(0)
 
@@ -66,10 +66,14 @@ def preprocess(args: Args):
     manifests: list[Manifest] = []
     with open(str(csv_file), "r") as f:
         metadata = f.readlines()
+    ignore_image = ["410-170_Tiffany_L1.jpg"]
     for line in tqdm(metadata[1:]):
         # extract metadata
         _, _, filename, h_w = line.rstrip().split(",")
+        if filename in ignore_image:
+            continue
         image_path = datapath / filename
+
         # h_w : " 4' 11"" 110 lbs."
         _, h_str, _, _, _ = h_w.split('"')
         h_cm = feet_to_cm(h_str)
