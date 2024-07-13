@@ -4,7 +4,11 @@ from pathlib import Path
 from dataclass_argparse import TypedNamespace
 import shutil
 import random
-from pydantic import BaseModel
+from tqdm import tqdm
+from data.manifest import Manifest
+from preprocess.pose_generate import PoseGenerate
+from preprocess.mask_generate import MaskGenerate
+from preprocess.depth_generate import DepthGenerate
 
 random.seed(0)
 
@@ -18,12 +22,9 @@ class Args(TypedNamespace):
     )
 
 
-class Manifest(BaseModel):
-    original_image_path: str
-    depth_image_path: str
-    rmbg_image_path: str
-    openpose_image_path: str
-    height: float
+pose_generator = PoseGenerate()
+depth_generator = DepthGenerate()
+mask_generator = MaskGenerate()
 
 
 def feet_to_cm(feet_inch: str):
@@ -49,16 +50,23 @@ def preprocess(args: Args):
     # prepare dump and manifest
     if dump_path.exists():
         shutil.rmtree(str(dump_path))
-    dump_path.mkdir(parents=True, exist_ok=True)
+    original_dir = dump_path / "original"
+    pose_dir = dump_path / "pose"
+    mask_dir = dump_path / "mask"
+    depth_dir = dump_path / "depth"
+    original_dir.mkdir(parents=True, exist_ok=True)
+    pose_dir.mkdir(parents=True, exist_ok=True)
+    mask_dir.mkdir(parents=True, exist_ok=True)
+    depth_dir.mkdir(parents=True, exist_ok=True)
+
     if manifest_path.exists():
         shutil.rmtree(str(manifest_path))
     manifest_path.mkdir(parents=True, exist_ok=True)
 
     manifests: list[Manifest] = []
-
     with open(str(csv_file), "r") as f:
         metadata = f.readlines()
-    for line in metadata[1:]:
+    for line in tqdm(metadata[1:]):
         # extract metadata
         _, _, filename, h_w = line.rstrip().split(",")
         image_path = datapath / filename
@@ -67,21 +75,29 @@ def preprocess(args: Args):
         h_cm = feet_to_cm(h_str)
 
         # copy image to dump
-        original_image_path = dump_path / filename
-        shutil.copy(str(image_path), str(original_image_path))
-        # openpose image
-        openpose_image_path = dump_path / filename
-        # rmbg image
-        rmgb_image_path = dump_path / filename
-        # depth image
-        depth_image_path = dump_path / filename
+        try:
+            original_image_path = dump_path / "original" / filename
+            shutil.copy(str(image_path), str(original_image_path))
+
+            # openpose image
+            pose_image_path = dump_path / "pose" / filename
+            pose_generator.generate(str(original_image_path), str(pose_image_path))
+            # rmbg image
+            mask_image_path = dump_path / "mask" / filename
+            mask_generator.generate(str(original_image_path), str(mask_image_path))
+            # depth image
+            depth_image_path = dump_path / "depth" / filename
+            depth_generator.generate(str(original_image_path), str(depth_image_path))
+        except Exception as e:
+            print(e)
+            continue
 
         manifests.append(
             Manifest(
                 original_image_path=str(original_image_path),
                 depth_image_path=str(depth_image_path),
-                rmbg_image_path=str(rmgb_image_path),
-                openpose_image_path=str(openpose_image_path),
+                mask_image_path=str(mask_image_path),
+                pose_image_path=str(pose_image_path),
                 height=h_cm,
             )
         )
@@ -107,3 +123,4 @@ if __name__ == "__main__":
     parser = Args.get_parser_grouped_by_parents()
     args = parser.parse_args()
     preprocess(args)
+    pose.close()

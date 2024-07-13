@@ -19,6 +19,15 @@ What it does
 
 Please Download from <https://www.kaggle.com/datasets/burnoutminer/heights-and-weights-dataset> to data/HWData/
 
+And unzip the file with the following command
+
+```bash
+
+cd data/HWData/
+unzip archive.zip
+
+```
+
 ## Installation
 
 #### Rye
