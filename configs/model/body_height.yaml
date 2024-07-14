@@ -7,11 +7,9 @@ optimizer:
   weight_decay: 0.0
 
 scheduler:
-  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
   _partial_: true
-  mode: min
-  factor: 0.1
-  patience: 10
+  T_max: 10
 
 net:
   _target_: src.models.components.resnet.ResNet

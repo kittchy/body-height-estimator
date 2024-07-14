@@ -298,6 +298,9 @@ python-dotenv==1.0.1
     # via rootutils
 pytorch-lightning==2.3.3
     # via lightning
+    # via pytorch-lightning-bolts
+pytorch-lightning-bolts==0.3.2.post1
+    # via body-height-estimator
 pyyaml==6.0.1
     # via cliff
     # via huggingface-hub
@@ -372,12 +375,14 @@ torch==2.3.1
     # via body-height-estimator
     # via lightning
     # via pytorch-lightning
+    # via pytorch-lightning-bolts
     # via torchmetrics
     # via torchvision
 torchmetrics==1.4.0.post0
     # via body-height-estimator
     # via lightning
     # via pytorch-lightning
+    # via pytorch-lightning-bolts
 torchvision==0.18.1
     # via body-height-estimator
 tqdm==4.66.4

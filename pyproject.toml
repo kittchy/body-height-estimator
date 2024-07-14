@@ -25,6 +25,7 @@ dependencies = [
     "numpy<2.0",
     "pillow>=10.4.0",
     "rembg>=2.0.57",
+    "pytorch-lightning-bolts>=0.3.2.post1",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"

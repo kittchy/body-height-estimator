@@ -3,6 +3,7 @@ from torch.utils.data import Dataset
 import numpy as np
 from data.manifest import Manifest
 from PIL import Image
+from src.data.components.augmentor import Augmentor
 
 # リソースの指定（CPU/GPU）
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -11,6 +12,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class HeightDataset(Dataset):
     def __init__(self, manifests_path: str):
         self.manifests = Manifest.load_jsonp(manifests_path)
+        self.augmentor = Augmentor()
 
     def __len__(self):
         return len(self.manifests)
@@ -21,23 +23,26 @@ class HeightDataset(Dataset):
         manifest = self.manifests[index]
 
         original = Image.open(manifest.original_image_path).convert(mode="L")
-        original = np.expand_dims(np.array(original), 0) / 255.0  # 0~255 -> 0~1
+        pose = Image.open(manifest.pose_image_path).convert(mode="L")
+        depth = Image.open(manifest.depth_image_path)
+        mask = Image.open(manifest.mask_image_path)
+
+        original, pose, depth, mask = self.augmentor.augment(
+            original, depth, pose, mask
+        )
+
+        original = np.expand_dims(original, 0)
+        pose = np.expand_dims(pose, 0)
+        depth = np.expand_dims(depth, 0)
+        mask = np.expand_dims(mask, 0)
+
         original = torch.tensor(original, dtype=torch.float).to(device)
-
-        pose_image = Image.open(manifest.pose_image_path).convert(mode="L")
-        pose_image = np.expand_dims(np.array(pose_image), 0) / 255.0  # 0~255 -> 0~1
-        pose_image = torch.tensor(pose_image, dtype=torch.float).to(device)
-
-        depth_image = Image.open(manifest.depth_image_path)
-        depth_image = np.expand_dims(np.array(depth_image), 0) / 255.0  # 0~255 -> 0~1
-        depth_image = torch.tensor(depth_image, dtype=torch.float).to(device)
-
-        mask_image = Image.open(manifest.mask_image_path)
-        mask_image = np.expand_dims(np.array(mask_image), 0) / 255.0  # 0~255 -> 0~1
-        mask_image = torch.tensor(mask_image, dtype=torch.float).to(device)
+        pose = torch.tensor(pose, dtype=torch.float).to(device)
+        depth = torch.tensor(depth, dtype=torch.float).to(device)
+        mask = torch.tensor(mask, dtype=torch.float).to(device)
 
         height = torch.tensor(manifest.height).to(device)
-        return original, pose_image, depth_image, mask_image, height
+        return original, pose, depth, mask, height
 
 
 # データローダーのサブプロセスの乱数seedが固定
