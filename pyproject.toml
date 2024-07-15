@@ -22,7 +22,7 @@ dependencies = [
     "opencv-python>=4.10.0.84",
     "mediapipe>=0.10.14",
     "transformers>=4.42.4",
-    "numpy<2.0",
+    "numpy<3.0",
     "pillow>=10.4.0",
     "rembg>=2.0.57",
     "pytorch-lightning-bolts>=0.3.2.post1",
